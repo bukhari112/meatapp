@@ -21,6 +21,9 @@ import 'package:numberpicker/numberpicker.dart';
 import 'api.dart';
 import 'package:http/http.dart' as http;
 
+import 'edit_user.dart';
+import 'orders.dart';
+
 List<Cashkillo> cashlistdata = [];
 
 class MainPageScreen extends StatefulWidget {
@@ -36,23 +39,28 @@ class _MainPageScreenState extends State<MainPageScreen> {
     var jsonData = json.decode(data.body);
     for (var u in jsonData) {
       Cashkillo cash = Cashkillo(u["id"], u["cash"], u["killo"]);
-      print(cash.killo);
       cashlistdata.add(cash);
     }
     return cashlistdata;
   }
+  String roletest = "1" ;
   String _username;
   String _phone;
   String _email;
   String _address;
   String _password;
+  String _id;
+  String _role;
+
   _getuserdata() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     _username  = prefs.getString('realname');
-    _phone = prefs.getString('phone');
-    _email = prefs.getString('email');
-    _address = prefs.getString('address');
-    _password = prefs.getString('password');
+     _phone = prefs.getString('phone');
+     _email = prefs.getString('email');
+     _address = prefs.getString('address');
+     _password = prefs.getString('password');
+    _role = prefs.getString('role');
+    _id = prefs.getString('id');
 
   }
   @override
@@ -61,6 +69,14 @@ class _MainPageScreenState extends State<MainPageScreen> {
     super.initState();
     _getCashkillo();
     _getuserdata();
+    _loadusername();
+  }
+
+  _loadusername() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    setState(() {
+      roletest = prefs.getString('role');
+    });
   }
 
   Widget _showpage = new HomePagePage(cashlistdata);
@@ -75,10 +91,15 @@ class _MainPageScreenState extends State<MainPageScreen> {
         return ContactPage();
         break;
       case 2:
-        return ProfilePage(_username ,_email , _password , _phone , _address);
+        return ProfilePage(_id , _role , _username ,_email , _password , _phone , _address);
         break;
       case 3:
-        return ControlPage();
+        return
+          roletest != "3" ?
+          ControlPage():
+          roletest != "2" ?
+          OrderPageScreen():
+          WhousPage();
         break;
       default:
         return HomePagePage(cashlistdata);
@@ -166,11 +187,22 @@ exitfun(){
             size: 30,
             color: Colors.white,
           ),
+roletest == "3"?
           Icon(
-            Icons.person,
+            Icons.dashboard,
             size: 30,
             color: Colors.white,
-          ),
+          ):
+roletest == "2"?
+Icon(
+  Icons.motorcycle,
+  size: 30,
+  color: Colors.white,
+):Icon(
+  Icons.info,
+  size: 30,
+  color: Colors.white,
+),
         ],
         color: Colors.red[900],
         buttonBackgroundColor: Colors.red[900],
@@ -957,7 +989,6 @@ class _HomePageState extends State<HomePagePage> {
   void initState() {
     // TODO: implement initState
     super.initState();
-
   }
 
   @override
@@ -1076,14 +1107,286 @@ class ProfilePage extends StatefulWidget {
   String password ;
   String phone ;
   String address ;
+  String id ;
+  String role ;
 
-  ProfilePage(this.username, this.email, this.password, this.phone, this.address);
+  ProfilePage(this.id, this.role, this.username, this.email, this.password, this.phone, this.address);
 
   @override
   _ProfilePageState createState() => _ProfilePageState();
 }
 
 class _ProfilePageState extends State<ProfilePage> {
+
+
+  @override
+  void initState() {
+
+    super.initState();
+
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return
+      Scaffold(
+      body:Container(
+      margin: EdgeInsets.all(10.0),
+      padding: EdgeInsets.only(top: 0, bottom: 20.0, left: 20.0, right: 20.0),
+      decoration: BoxDecoration(boxShadow: [
+        BoxShadow(
+          color: Colors.grey.withOpacity(.4),
+          spreadRadius: 3,
+          blurRadius: 8,
+          offset: Offset(0.0, 3.0),
+        )
+      ]),
+      child: Container(
+          color: Colors.white,
+          child: ListView(
+              children: <Widget>[
+                Container(
+                  width: 500.0,
+                  height: 120.0,
+                  child: Center(
+                    child: Container(
+                      padding: EdgeInsets.symmetric(vertical: 10.0),
+                      width: double.infinity,
+                    ),
+                  ),
+                  decoration: new BoxDecoration(
+                    image: new DecorationImage(
+                      image: new AssetImage('assets/profile.png'),
+                    ),
+
+                  ),
+                ),
+                Container(
+                  margin: EdgeInsets.all(5),
+                  decoration: BoxDecoration(boxShadow: [
+                    BoxShadow(
+                        color: Colors.grey.withOpacity(0.1),
+                        spreadRadius: 5,
+                        blurRadius:2,
+                        offset: Offset(0, 3))
+                  ]),
+                  child: FlatButton(
+                    onPressed: () {
+                    },
+                    color: Colors.white,
+                    shape: SuperellipseShape(
+                      borderRadius: BorderRadius.circular(28.0),
+                    ),
+                    child: ListTile(leading: IconButton(
+                      icon: Icon(Icons.person_pin, color: Colors.red[900],size:50.0,),
+                      onPressed: () {
+/*                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => ProgressPage(orderslistdata)),
+                      );*/
+                      },
+                    ),
+                      title: Text(
+                        widget.username,
+                        textDirection: TextDirection.rtl,
+                        style: TextStyle(color: Colors.red[900],
+                          fontWeight: FontWeight.bold,
+                          fontFamily: 'Sans',
+                          fontSize: 15.0,
+                        )
+                        ,),
+                      subtitle: Text(
+                        widget.email,
+                        textDirection: TextDirection.rtl,
+                        style: TextStyle(color: Colors.black54,
+                            fontWeight: FontWeight.bold,
+                            fontFamily: 'Sans',
+                            fontSize:12.0)
+                        ,),
+                      onTap: () {
+
+                      },
+                    ),
+                  ),
+                ),
+                Container(
+                  margin: EdgeInsets.all(5),
+                  decoration: BoxDecoration(boxShadow: [
+                    BoxShadow(
+                        color: Colors.grey.withOpacity(0.1),
+                        spreadRadius: 5,
+                        blurRadius: 2,
+                        offset: Offset(0, 3))
+                  ]),
+                  child: FlatButton(
+                    onPressed: () {
+                    },
+                    color: Colors.white,
+                    shape: SuperellipseShape(
+                      borderRadius: BorderRadius.circular(28.0),
+                    ),
+
+                    child:ListTile(leading: IconButton(
+                      icon: Icon(Icons.lock, color: Colors.red[900],size:50.0,),
+                      onPressed: () {
+/*              Navigator.push(
+                context,
+                MaterialPageRoute(
+                    builder: (context) => DonePage(orderslistdata)),
+              );*/
+
+                      },
+                    ),
+                      title: Text(
+                        "كلمة المرور",
+                        textDirection: TextDirection.rtl,
+                        style: TextStyle(color: Colors.red[900],
+                          fontWeight: FontWeight.bold,
+                          fontFamily: 'Sans',
+                          fontSize: 15.0,
+                        )
+                        ,),
+                      subtitle: Text(
+                        widget.password,
+                        textDirection: TextDirection.rtl,
+                        style: TextStyle(color: Colors.black54,
+                            fontWeight: FontWeight.bold,
+                            fontFamily: 'Sans',
+                            fontSize:12.0)
+                        ,),
+                      onTap: () {
+
+                      },
+                    ),
+                  ),
+                ),
+                Container(
+                  margin: EdgeInsets.all(5),
+                  decoration: BoxDecoration(boxShadow: [
+                    BoxShadow(
+                        color: Colors.grey.withOpacity(0.1),
+                        spreadRadius: 5,
+                        blurRadius: 2,
+                        offset: Offset(0, 3))
+                  ]),
+                  child: FlatButton(
+                    onPressed: () {
+                    },
+                    color: Colors.white,
+                    shape: SuperellipseShape(
+                      borderRadius: BorderRadius.circular(28.0),
+                    ),
+
+                    child:ListTile(leading: IconButton(
+                      icon: Icon(Icons.phone, color: Colors.red[900],size:50.0,),
+                      onPressed: () {
+/*                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => ProgressPage(orderslistdata)),
+                      );*/
+                      },
+                    ),
+                      title: Text(
+                        "رقم الهاتف",
+                        textDirection: TextDirection.rtl,
+                        style: TextStyle(color: Colors.red[900],
+                          fontWeight: FontWeight.bold,
+                          fontFamily: 'Sans',
+                          fontSize: 15.0,
+                        )
+                        ,),
+                      subtitle: Text(
+                        widget.phone,
+
+                        textDirection: TextDirection.rtl,
+                        style: TextStyle(color: Colors.black54,
+                            fontWeight: FontWeight.bold,
+                            fontFamily: 'Sans',
+                            fontSize:12.0)
+                        ,),
+                      onTap: () {
+
+                      },
+                    ),
+                  ),
+                ),
+                Container(
+                  margin: EdgeInsets.all(5),
+                  decoration: BoxDecoration(boxShadow: [
+                    BoxShadow(
+                        color: Colors.grey.withOpacity(0.1),
+                        spreadRadius: 5,
+                        blurRadius:2,
+                        offset: Offset(0, 3))
+                  ]),
+                  child: FlatButton(
+                    onPressed: () {
+                    },
+                    color: Colors.white,
+                    shape: SuperellipseShape(
+                      borderRadius: BorderRadius.circular(28.0),
+                    ),
+
+                    child: ListTile(leading: IconButton(
+                      icon: Icon(Icons.map, color: Colors.red[900],size:50.0,),
+                      onPressed: () {
+/*                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => MainPageScreen()),
+                      );*/
+                      },
+                    ),
+                      title: Text(
+                        "العنوان",
+                        textDirection: TextDirection.rtl,
+                        style: TextStyle(color: Colors.red[900],
+                          fontWeight: FontWeight.bold,
+                          fontFamily: 'Sans',
+                          fontSize: 15.0,
+                        )
+                        ,),
+                      subtitle: Text(
+                        widget.address,
+                        textDirection: TextDirection.rtl,
+                        style: TextStyle(color: Colors.black54,
+                            fontWeight: FontWeight.bold,
+                            fontFamily: 'Sans',
+                            fontSize:12.0)
+                        ,),
+                      onTap: () {
+
+                      },
+                    ),
+                  ),
+                ),
+              ]
+          )
+      ),
+    ),
+        floatingActionButton:FloatingActionButton(
+          heroTag: "btn1",
+          onPressed:(){
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => EdituserScreen(widget.id,widget.role,widget.username,widget.email,widget.password,widget.phone ,widget.address)),
+            );
+          },
+          child: new Icon(Icons.edit, color: Colors.red[900]),
+          backgroundColor: Colors.white,),
+      );
+  }
+}
+
+class WhousPage extends StatefulWidget {
+
+  @override
+  _WhousPageState createState() => _WhousPageState();
+}
+
+class _WhousPageState extends State<WhousPage> {
 
 
   @override
@@ -1107,228 +1410,93 @@ class _ProfilePageState extends State<ProfilePage> {
         )
       ]),
       child: Container(
-        color: Colors.white,
-        child: ListView(
-            children: <Widget>[
-              Container(
-                width: 500.0,
-                height: 150.0,
-                child: Center(
-                  child: Container(
-                    padding: EdgeInsets.symmetric(vertical: 25.0),
-                    width: double.infinity,
+          color: Colors.white,
+          child: ListView(
+              children: <Widget>[
+                Container(
+                  width: 500.0,
+                  height: 150.0,
+                  child: Center(
+                    child: Container(
+                      padding: EdgeInsets.symmetric(vertical: 25.0),
+                      width: double.infinity,
+                    ),
                   ),
-                ),
-                decoration: new BoxDecoration(
-                  image: new DecorationImage(
-                    image: new AssetImage('assets/profile.png'),
-                  ),
+                  decoration: new BoxDecoration(
+                    image: new DecorationImage(
+                      image: new AssetImage('assets/who.jpg'),
+                    ),
 
-                ),
-              ),
-              Container(
-                margin: EdgeInsets.all(5),
-                decoration: BoxDecoration(boxShadow: [
-                  BoxShadow(
-                      color: Colors.grey.withOpacity(0.1),
-                      spreadRadius: 5,
-                      blurRadius:2,
-                      offset: Offset(0, 3))
-                ]),
-                child: FlatButton(
-                  onPressed: () {
-                  },
-                  color: Colors.white,
-                  shape: SuperellipseShape(
-                    borderRadius: BorderRadius.circular(28.0),
                   ),
-                  child: ListTile(leading: IconButton(
-                    icon: Icon(Icons.person_pin, color: Colors.red[900],size:50.0,),
+                ),
+                Container(
+                  margin: EdgeInsets.all(5),
+                  decoration: BoxDecoration(boxShadow: [
+                    BoxShadow(
+                        color: Colors.grey.withOpacity(0.1),
+                        spreadRadius: 5,
+                        blurRadius:2,
+                        offset: Offset(0, 3))
+                  ]),
+                  child: FlatButton(
                     onPressed: () {
+                    },
+                    color: Colors.white,
+                    shape: SuperellipseShape(
+                      borderRadius: BorderRadius.circular(28.0),
+                    ),
+                    child: ListTile(leading: IconButton(
+                      icon: Icon(Icons.info, color: Colors.red[900],size:20.0,),
+                      onPressed: () {
 /*                      Navigator.push(
                         context,
                         MaterialPageRoute(
                             builder: (context) => ProgressPage(orderslistdata)),
                       );*/
-                    },
-                  ),
-                    title: Text(
-                  widget.username,
-                      textDirection: TextDirection.rtl,
-                      style: TextStyle(color: Colors.red[900],
-                        fontWeight: FontWeight.bold,
-                        fontFamily: 'Sans',
-                        fontSize: 15.0,
-                      )
-                      ,),
-                    subtitle: Text(
-                        widget.email,
-                      textDirection: TextDirection.rtl,
-                      style: TextStyle(color: Colors.black54,
+                      },
+                    ),
+                      title: Text(
+                      "تطبيق لحوم بلدي",
+                        textDirection: TextDirection.rtl,
+                        style: TextStyle(color: Colors.red[900],
                           fontWeight: FontWeight.bold,
                           fontFamily: 'Sans',
-                          fontSize:12.0)
-                      ,),
-                    onTap: () {
+                          fontSize: 15.0,
+                        )
+                        ,),
+                      onTap: () {
 
-                    },
+                      },
+                    ),
                   ),
                 ),
-              ),
-              Container(
-                margin: EdgeInsets.all(5),
-                decoration: BoxDecoration(boxShadow: [
-                  BoxShadow(
-                      color: Colors.grey.withOpacity(0.1),
-                      spreadRadius: 5,
-                      blurRadius: 2,
-                      offset: Offset(0, 3))
-                ]),
-                child: FlatButton(
-                  onPressed: () {
-                  },
-                  color: Colors.white,
-                  shape: SuperellipseShape(
-                    borderRadius: BorderRadius.circular(28.0),
-                  ),
-
-                  child:ListTile(leading: IconButton(
-                    icon: Icon(Icons.lock, color: Colors.red[900],size:50.0,),
+                Container(
+                  margin: EdgeInsets.all(5),
+                  decoration: BoxDecoration(boxShadow: [
+                    BoxShadow(
+                        color: Colors.grey.withOpacity(0.1),
+                        spreadRadius: 5,
+                        blurRadius: 2,
+                        offset: Offset(0, 3))
+                  ]),
+                  child: FlatButton(
                     onPressed: () {
-/*              Navigator.push(
-                context,
-                MaterialPageRoute(
-                    builder: (context) => DonePage(orderslistdata)),
-              );*/
-                      print(orderslistdata[0].username);
                     },
-                  ),
-                    title: Text(
-                      "كلمة المرور",
-                      textDirection: TextDirection.rtl,
-                      style: TextStyle(color: Colors.red[900],
-                        fontWeight: FontWeight.bold,
-                        fontFamily: 'Sans',
-                        fontSize: 15.0,
+                    color: Colors.white,
+                    shape: SuperellipseShape(
+                      borderRadius: BorderRadius.circular(28.0),
+                    ),
+                    child:Center(
+                      child:Text(
+                        "نَحنُ مجموعة لحوم بلدي نُقدّم أجوَد أنواع اللحوم الطازجة بحُب وإخلاص وبإحترافية بالغة حيثُ نقوم بسلخها وتقطيعها وتوصيلها حَيثما كُنت، فهذا عَمَلنا على مرّ الأزمنة فهو ماضينا، حاضرنا ومُستقبلنا"
+                     ,style: TextStyle(color: Colors.black87,fontFamily:'Sans'),
+                        textDirection: TextDirection.rtl,
                       )
-                      ,),
-                    subtitle: Text(
-                      widget.password,
-                      textDirection: TextDirection.rtl,
-                      style: TextStyle(color: Colors.black54,
-                          fontWeight: FontWeight.bold,
-                          fontFamily: 'Sans',
-                          fontSize:12.0)
-                      ,),
-                    onTap: () {
-
-                    },
+                    ),
                   ),
                 ),
-              ),
-              Container(
-                margin: EdgeInsets.all(5),
-                decoration: BoxDecoration(boxShadow: [
-                  BoxShadow(
-                      color: Colors.grey.withOpacity(0.1),
-                      spreadRadius: 5,
-                      blurRadius: 2,
-                      offset: Offset(0, 3))
-                ]),
-                child: FlatButton(
-                  onPressed: () {
-                  },
-                  color: Colors.white,
-                  shape: SuperellipseShape(
-                    borderRadius: BorderRadius.circular(28.0),
-                  ),
-
-                  child:ListTile(leading: IconButton(
-                    icon: Icon(Icons.phone, color: Colors.red[900],size:50.0,),
-                    onPressed: () {
-/*                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: (context) => ProgressPage(orderslistdata)),
-                      );*/
-                    },
-                  ),
-                    title: Text(
-                      "رقم الهاتف",
-                      textDirection: TextDirection.rtl,
-                      style: TextStyle(color: Colors.red[900],
-                        fontWeight: FontWeight.bold,
-                        fontFamily: 'Sans',
-                        fontSize: 15.0,
-                      )
-                      ,),
-                    subtitle: Text(
-                        widget.phone,
-
-                      textDirection: TextDirection.rtl,
-                      style: TextStyle(color: Colors.black54,
-                          fontWeight: FontWeight.bold,
-                          fontFamily: 'Sans',
-                          fontSize:12.0)
-                      ,),
-                    onTap: () {
-
-                    },
-                  ),
-                ),
-              ),
-              Container(
-                margin: EdgeInsets.all(5),
-                decoration: BoxDecoration(boxShadow: [
-                  BoxShadow(
-                      color: Colors.grey.withOpacity(0.1),
-                      spreadRadius: 5,
-                      blurRadius:2,
-                      offset: Offset(0, 3))
-                ]),
-                child: FlatButton(
-                  onPressed: () {
-                  },
-                  color: Colors.white,
-                  shape: SuperellipseShape(
-                    borderRadius: BorderRadius.circular(28.0),
-                  ),
-
-                  child: ListTile(leading: IconButton(
-                    icon: Icon(Icons.map, color: Colors.red[900],size:50.0,),
-                    onPressed: () {
-/*                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: (context) => MainPageScreen()),
-                      );*/
-                    },
-                  ),
-                    title: Text(
-                      "العنوان",
-                      textDirection: TextDirection.rtl,
-                      style: TextStyle(color: Colors.red[900],
-                        fontWeight: FontWeight.bold,
-                        fontFamily: 'Sans',
-                        fontSize: 15.0,
-                      )
-                      ,),
-                    subtitle: Text(
-                      widget.address,
-                      textDirection: TextDirection.rtl,
-                      style: TextStyle(color: Colors.black54,
-                          fontWeight: FontWeight.bold,
-                          fontFamily: 'Sans',
-                          fontSize:12.0)
-                      ,),
-                    onTap: () {
-
-                    },
-                  ),
-                ),
-              ),
-            ]
-        )
+              ]
+          )
       ),
     );
   }

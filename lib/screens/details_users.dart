@@ -5,6 +5,7 @@ import 'package:kf_drawer/kf_drawer.dart';
 import 'package:loading_animations/loading_animations.dart';
 import 'package:meatappapp/screens/confirm_page.dart';
 import 'package:meatappapp/screens/control_page.dart';
+import 'package:meatappapp/screens/edit_user.dart';
 import 'package:meatappapp/screens/islamic.dart';
 import 'package:meatappapp/screens/main_page.dart';
 import 'package:meatappapp/screens/mycart.dart';
@@ -41,101 +42,6 @@ class _DetailsUsersScreenState extends State<DetailsUsersScreen> {
     super.initState();
   }
 
-  // Methode for edit level data to mysql
-  void _nextlevelorder(int role) async {
-    try {
-      SharedPreferences prefs = await SharedPreferences.getInstance();
-      String _adminname = prefs.getString('realname');
-      // Showing CircularProgressIndicator using State.
-      setState(() {
-        visible = true ;
-        unvisible = false;
-      });
-      FormData formData =
-      // new FormData.fromMap({"name": "bukhari" });
-      new FormData.fromMap({"adminname": _adminname});
-      Response response =
-      await Dio().post(
-          "http://semicolon-sd.com/covid19/edirrole/${widget.index}/$role}", data: formData);
-      print("File upload response: $response");
-      // If Web call Success than Hide the CircularProgressIndicator.
-      if (response.statusCode == 200) {
-        setState(() {
-          visible = false;
-          unvisible = true;
-        });
-      }
-      // Showing Alert Dialog with Response JSON Message.
-      showDialog(
-        context: this.context,
-        builder: (BuildContext context) {
-          return AlertDialog(
-            title: new Text("$response", textDirection: TextDirection.rtl,
-                style: TextStyle(fontFamily: 'Sans',
-                    color: Colors.red[900],
-                    fontWeight: FontWeight.bold)),
-            actions: [
-              FlatButton(
-                child: new Text("حسنا", textDirection: TextDirection.rtl,
-                    style: TextStyle(fontFamily: 'Sans',
-                        color: Colors.red[500],
-                        fontWeight: FontWeight.bold)),
-                onPressed: () {
-                  Navigator.pushAndRemoveUntil(
-                      context,
-                      MaterialPageRoute(
-                          builder: (BuildContext context) => ControlPage()),
-                      ModalRoute.withName('/'));
-                },
-              ),
-
-            ],
-          );
-        },
-      );
-      setState(() {
-        visible = false;
-        unvisible = true;
-      });
-      // Show the incoming message in snakbar
-      //_showSnakBarMsg(response.data['message']);
-    } catch (e) {
-      print("Exception Caught: $e");
-    }
-  }
-
-
-  nextlevel(int level){
-    _nextlevelorder(level);
-  }
-
-  _configratedmsg (int role){
-    return showDialog(
-      context:this.context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: new Text("اضغط علي حسناً لـتأكيد العملية ",textDirection: TextDirection.rtl,style:TextStyle(fontFamily: 'Sans',color:Colors.red[900],fontWeight: FontWeight.bold)),
-          actions: [
-            FlatButton(
-              child: new Text("حسنا",textDirection: TextDirection.rtl,style:TextStyle(fontFamily: 'Sans',color:Colors.red[500],fontWeight: FontWeight.bold)),
-              onPressed: () {
-                nextlevel(role);
-              },
-            ),
-            FlatButton(
-              child: new Text("الغاء", textDirection: TextDirection.rtl,
-                  style: TextStyle(fontFamily: 'Sans',
-                      color: Colors.red[500],
-                      fontWeight: FontWeight.bold)),
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-            ),
-          ],
-        );
-      },
-    );
-  }
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -148,12 +54,85 @@ class _DetailsUsersScreenState extends State<DetailsUsersScreen> {
       widget.list.length > 0 ?
       new ListView(
                 children: <Widget>[
+                  Container(
+                    width: 500.0,
+                    height: 150.0,
+                    child: Center(
+                      child: Container(
+                        padding: EdgeInsets.symmetric(vertical: 25.0),
+                        width: double.infinity,
+                      ),
+                    ),
+                    decoration: new BoxDecoration(
+                      image: new DecorationImage(
+                        image: new AssetImage('assets/profile.png'),
+                      ),
+
+                    ),
+                  ),
+                  SizedBox(height:10.0),
+                  Directionality(
+                    textDirection:TextDirection.rtl,
+                    child: ListTile(
+                      leading: IconButton(
+                        icon: Icon(Icons.verified_user, color: Colors.red[900],),
+                        onPressed: () {
+/*                    SchedulerBinding.instance.addPostFrameCallback((_) {
+                    Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => DetailsOrderScreen(widget.list[index].userid,widget.list)),
+                    );
+                    });*/
+                        },
+                      ),
+                      title:
+                        Text(
+                          "الصلاحية",
+                          textDirection: TextDirection.rtl,
+                          style: TextStyle(
+                            color: Colors.red[500],
+                            fontSize: 15.0,
+                            fontWeight: FontWeight.w400,
+                            fontFamily: 'Sans',
+                          ),
+                        ) ,
+                      subtitle:                       widget.list[widget.index] == "3"?
+                      Text("مدير",
+                        textDirection: TextDirection.rtl,
+                        style: TextStyle(
+                          color: Colors.black,
+                          fontSize: 15.0,
+                          fontWeight: FontWeight.w400,
+                          fontFamily: 'Sans',
+                        ),
+                      ) :
+                      widget.list[widget.index] == "2"?
+                      Text("موصل طلبات",
+                        textDirection: TextDirection.rtl,
+                        style: TextStyle(
+                          color: Colors.black,
+                          fontSize: 15.0,
+                          fontWeight: FontWeight.w400,
+                          fontFamily: 'Sans',
+                        ),
+                      ):
+                      Text("مستخدم",
+                        textDirection: TextDirection.rtl,
+                        style: TextStyle(
+                          color: Colors.black,
+                          fontSize: 15.0,
+                          fontWeight: FontWeight.w400,
+                          fontFamily: 'Sans',
+                        ),
+                      ),
+                    ),
+                  ),
                   SizedBox(height: 10.0),
                   Directionality(
                     textDirection:TextDirection.rtl,
                     child: ListTile(
                       leading: IconButton(
-                        icon: Icon(Icons.alternate_email, color: Colors.red[900],),
+                        icon: Icon(Icons.person_pin, color: Colors.red[900],),
                         onPressed: () {
 /*                    SchedulerBinding.instance.addPostFrameCallback((_) {
                     Navigator.push(
@@ -164,10 +143,20 @@ class _DetailsUsersScreenState extends State<DetailsUsersScreen> {
                         },
                       ),
                       title: Text(
-                        widget.list[widget.index].email,
+                        widget.list[widget.index].realname,
                         textDirection: TextDirection.rtl,
                         style: TextStyle(
                           color: Colors.black,
+                          fontSize: 15.0,
+                          fontWeight: FontWeight.w400,
+                          fontFamily: 'Sans',
+                        ),
+                      ) ,
+                      subtitle: Text(
+                        widget.list[widget.index].email,
+                        textDirection: TextDirection.rtl,
+                        style: TextStyle(
+                          color: Colors.red[500],
                           fontSize: 15.0,
                           fontWeight: FontWeight.w400,
                           fontFamily: 'Sans',
@@ -178,7 +167,7 @@ class _DetailsUsersScreenState extends State<DetailsUsersScreen> {
                   SizedBox(
                     height: 10.0,
                   ),
-                  new Directionality(
+                  Directionality(
                     textDirection:TextDirection.rtl,
                     child: ListTile(
                       leading: IconButton(
@@ -201,7 +190,7 @@ class _DetailsUsersScreenState extends State<DetailsUsersScreen> {
                           fontWeight: FontWeight.w400,
                           fontFamily: 'Sans',
                         ),
-                      ) ,
+                      ),
                     ),
                   ),
                   SizedBox(height: 10.0),
@@ -235,33 +224,6 @@ class _DetailsUsersScreenState extends State<DetailsUsersScreen> {
                     textDirection:TextDirection.rtl,
                     child: ListTile(
                       leading: IconButton(
-                        icon: Icon(Icons.person_pin, color: Colors.red[900],),
-                        onPressed: () {
-/*                    SchedulerBinding.instance.addPostFrameCallback((_) {
-                    Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => DetailsOrderScreen(widget.list[index].userid,widget.list)),
-                    );
-                    });*/
-                        },
-                      ),
-                      title: Text(
-                        widget.list[widget.index].realname,
-                        textDirection: TextDirection.rtl,
-                        style: TextStyle(
-                          color: Colors.black,
-                          fontSize: 15.0,
-                          fontWeight: FontWeight.w400,
-                          fontFamily: 'Sans',
-                        ),
-                      ) ,
-                    ),
-                  ),
-                  SizedBox(height: 10.0),
-                  new Directionality(
-                    textDirection:TextDirection.rtl,
-                    child: ListTile(
-                      leading: IconButton(
                         icon: Icon(Icons.map, color: Colors.red[900],),
                         onPressed: () {
 /*                    SchedulerBinding.instance.addPostFrameCallback((_) {
@@ -285,71 +247,6 @@ class _DetailsUsersScreenState extends State<DetailsUsersScreen> {
                     ),
                   ),
                   SizedBox(height:10.0),
-                  Visibility(
-                    visible: unvisible,
-                    child:
-                    Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: <Widget>[
-                          Padding(
-                            padding: EdgeInsets.all(10.0),
-                          ),
-                          widget.list[widget.index].role == 1?
-                          Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: <Widget>[
-                          FloatingActionButton(
-                            heroTag: "btn1",
-                            onPressed: _configratedmsg(2),
-                            child: new Icon(Icons.motorcycle, color: Colors.white),
-                            backgroundColor: Colors.red[900],),
-                          FloatingActionButton(
-                            heroTag: "btn2",
-                            onPressed: _configratedmsg(3),
-                            child: new Icon(Icons.airline_seat_recline_normal, color: Colors.white),
-                            backgroundColor: Colors.red[900],)
-                           ]):
-                          widget.list[widget.index].role == 2?
-                          Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: <Widget>[
-                                FloatingActionButton(
-                                  heroTag: "btn3",
-                                  onPressed: _configratedmsg(3),
-                                  child: new Icon(Icons.airline_seat_recline_normal, color: Colors.white),
-                                  backgroundColor: Colors.red[900],),
-                                FloatingActionButton(
-                                  heroTag: "btn4",
-                                  onPressed: _configratedmsg(1),
-                                  child: new Icon(Icons.person, color: Colors.white),
-                                  backgroundColor: Colors.red[900],)
-                              ]) :
-                          Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: <Widget>[
-                                FloatingActionButton(
-                                  heroTag: "btn5",
-                                  onPressed: _configratedmsg(2),
-                                  child: new Icon(Icons.motorcycle, color: Colors.white),
-                                  backgroundColor: Colors.red[900],),
-                                FloatingActionButton(
-                                  heroTag: "btn6",
-                                  onPressed: _configratedmsg(1),
-                                  child: new Icon(Icons.person, color: Colors.white),
-                                  backgroundColor: Colors.red[900],)
-                              ]),
-                        ]),
-                  ),
-                  Visibility(
-                      visible: visible,
-                      child: Container(
-                          margin: EdgeInsets.all(30.0),
-                          child:LoadingDoubleFlipping.square(
-                            size: 30,
-                            backgroundColor: Colors.red[200],
-                          )
-                      )
-                  ),
                 ],
               )
           : Center(
@@ -366,6 +263,5 @@ class Cashkillo {
   final int id;
   final int cash;
   final String killo;
-
   Cashkillo(this.id, this.cash, this.killo);
 }

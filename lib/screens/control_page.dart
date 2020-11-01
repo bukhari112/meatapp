@@ -261,7 +261,7 @@ color: Colors.white,
 
                 ]
             ),
-            new Row(
+/*            new Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: <Widget>[
                   Container(
@@ -315,7 +315,7 @@ color: Colors.white,
                       )
                   )
                 ]
-            ),
+            ),*/
     ],
       )
     );

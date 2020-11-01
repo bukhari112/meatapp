@@ -507,11 +507,6 @@ return Column(
             SizedBox(
               height: 5.0,
             ),
-            Container(padding:EdgeInsets.only(left:20.0,right:20.0),child:_buildForgotPasswordBtn())
-            ,
-            SizedBox(
-              height: 5.0,
-            ),
             Container(padding:EdgeInsets.only(left:20.0,right:20.0),child:_buildLoginBtn()),
             SizedBox(
               height: 5.0,

@@ -168,7 +168,7 @@ class _EdituserScreenState extends State<EdituserScreen> {
         });
         Response response =
         await Dio().post(
-            "http://semicolon-sd.com/covid19/editprofile/${widget.id}", data: formData);
+            "http://www.baladisa.com/covid19/editprofile/${widget.id}", data: formData);
         print("File upload response: $response");
         // If Web call Success than Hide the CircularProgressIndicator.
         if (response.statusCode == 200) {

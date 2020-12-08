@@ -1,7 +1,7 @@
 import 'dart:async';
 import 'package:http/http.dart' as http;
 
-const baseUrl = "http://www.semicolon-sd.com";
+const baseUrl = "http://www.baladisa.com";
 
 class API {
   static Future getUsers() async {
@@ -41,7 +41,7 @@ class Azkar {
 
 class Cashdata {
   static Future getCashdata() async {
-    var urldatacash ="http://semicolon-sd.com//covid19/datacash";
+    var urldatacash ="http://www.baladisa.com//covid19/datacash";
     return http.get(urldatacash);
   }
 }

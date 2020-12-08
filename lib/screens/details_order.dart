@@ -70,7 +70,7 @@ class _DetailsOrderScreenState extends State<DetailsOrderScreen> {
         new FormData.fromMap({"adminname": _adminname});
         Response response =
         await Dio().post(
-            "http://semicolon-sd.com/covid19/nextlevel/${widget.userid}/$level}", data: formData);
+            "http://www.baladisa.com/covid19/nextlevel/${widget.userid}/$level}", data: formData);
         print("File upload response: $response");
         // If Web call Success than Hide the CircularProgressIndicator.
         if (response.statusCode == 200) {

@@ -67,7 +67,7 @@ class _EditCashScreenState extends State<EditCashScreen> {
         new FormData.fromMap({"cash": _cash, "killo": _killo});
         Response response =
         await Dio().post(
-            "http://semicolon-sd.com/covid19/editcash/${widget.list[widget
+            "http://www.baladisa.com/covid19/editcash/${widget.list[widget
                 .index].id}", data: formData);
         print("File upload response: $response");
         // If Web call Success than Hide the CircularProgressIndicator.
@@ -127,7 +127,7 @@ class _EditCashScreenState extends State<EditCashScreen> {
       // new FormData.fromMap({"name": "bukhari" });
       new FormData.fromMap({"data":"delete"});
       Response response =
-      await Dio().post("http://semicolon-sd.com/covid19/deletedata/Cashdata/${widget.list[widget.index].id}", data: formData);
+      await Dio().post("http://www.baladisa.com/covid19/deletedata/Cashdata/${widget.list[widget.index].id}", data: formData);
       // print("File upload response: $response");
       // Showing Alert Dialog with Response JSON Message.
       showDialog(

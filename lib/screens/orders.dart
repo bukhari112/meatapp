@@ -23,6 +23,8 @@ import 'package:superellipse_shape/superellipse_shape.dart';
 import 'package:numberpicker/numberpicker.dart';
 import 'api.dart';
 import 'package:http/http.dart' as http;
+import 'package:meatappapp/utils/constants.dart';
+import 'package:meatappapp/utils/class_builder.dart';
 List<Totalcart> orderslistdata =[];
 
 class OrderPageScreen extends StatefulWidget {
@@ -69,12 +71,12 @@ class _OrderPageScreenState extends State<OrderPageScreen> {
   Widget build(BuildContext context) {
     //build numberpicker for integer numbers
     return Scaffold(
-      appBar: new AppBar(
+/*      appBar: new AppBar(
         backgroundColor: Colors.red[900],
         centerTitle: true,
         title: Text("لحوم بلدي",
           style: TextStyle(fontFamily: 'Sans'),),
-      ),
+      )*/
       body:ListView(
           children: <Widget>[
        Container(
@@ -365,3 +367,8 @@ class Cashkillo{
   Cashkillo(this.id, this.cash, this.killo);
 
 }
+
+
+
+
+

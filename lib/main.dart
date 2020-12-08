@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:dio/dio.dart';
 import 'package:flutter/scheduler.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:loading_animations/loading_animations.dart';
 import 'package:meatappapp/screens/admins.dart';
@@ -11,22 +12,29 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:kf_drawer/kf_drawer.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:workmanager/workmanager.dart';
 import 'utils/class_builder.dart';
 import 'package:splashscreen/splashscreen.dart';
 import 'package:flutter/services.dart';
-import 'dart:io';
+import 'dart:async';
 import 'package:http/http.dart' as http;
+
 List<Admins> admindata =[];
-void main() {
-  ClassBuilder.registerClasses();
+
+void main() async  {
+  WidgetsFlutterBinding.ensureInitialized();
+  SharedPreferences prefs = await SharedPreferences.getInstance();
+  String realname  = prefs.getString('realname');
   runApp(new MaterialApp(
     theme: ThemeData(
       primarySwatch: Colors.red,
     ),
     debugShowCheckedModeBanner: false,
-    home: new MyApp(),
+    home: realname == null? new MyApp():new MainPageScreen(),
+    routes: {"/MainPage":(context)=> new MainPageScreen()},
   ));
 }
+
 
 class MyApp extends StatefulWidget {
   @override
@@ -34,13 +42,12 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
-
+   String title;
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
-
-  }
+ }
 
   @override
   Widget build(BuildContext context) {
@@ -68,120 +75,6 @@ class _MyAppState extends State<MyApp> {
   }
 }
 
-class MainWidget extends StatefulWidget {
-  MainWidget({Key key, this.title}) : super(key: key);
-  final String title;
-
-  @override
-  _MainWidgetState createState() => _MainWidgetState();
-}
-
-class _MainWidgetState extends State<MainWidget> with TickerProviderStateMixin {
-  KFDrawerController _drawerController;
-
-
-
-
-  @override
-  void initState() {
-    super.initState();
-
-
-    _drawerController = KFDrawerController(
-      initialPage: ClassBuilder.fromString('MainPage'),
-      items: [
-        /*KFDrawerItem.initWithPage(
-          text: Text('تطبيق نفحة الخيري ',
-              style: TextStyle(color: Colors.white ,fontFamily:'Sans'
-                  ,fontSize:15.0)),
-          icon: Icon(Icons.developer_mode, color: Colors.white),
-          page: MainPage(),
-        ),
-
-        KFDrawerItem.initWithPage(
-          text: Text('هذا التطبيق صدقة جارية علي  ',
-              style: TextStyle(color: Colors.white,fontSize:10.0,fontFamily: 'Sans')),
-          icon: Icon(Icons.perm_identity, color: Colors.white),
-          page: MainPage(),
-        ),
-        KFDrawerItem.initWithPage(
-          text: Text(' روح المرحوم جدي عبدالفتاح حسين أحمد ',
-              style: TextStyle(color: Colors.white,fontSize:10.0,fontFamily: 'Sans')),
-          icon: Icon(Icons.perm_identity, color: Colors.white),
-          page: MainPage(),
-        ),
-        KFDrawerItem.initWithPage(
-          text: Text(' روح المرحوم  اسامة عبد العظيم  ',
-              style: TextStyle(color: Colors.white,fontSize:10.0,fontFamily: 'Sans')),
-          icon: Icon(Icons.perm_identity, color: Colors.white),
-          page: MainPage(),
-        ),
-        KFDrawerItem.initWithPage(
-          text: Text('   كل من نشر التطبيق  ',
-              style: TextStyle(color: Colors.white,fontSize:10.0,fontFamily: 'Sans')),
-          icon: Icon(Icons.people_outline, color: Colors.white),
-          page: MainPage(),
-        ),
-        KFDrawerItem.initWithPage(
-          text: Text('  جميع المسلمين وامهات واباء المسلمين    ',
-              style: TextStyle(color: Colors.white,fontSize:10.0,fontFamily: 'Sans')),
-          icon: Icon(Icons.people_outline, color: Colors.white),
-          page: MainPage(),
-        ),*/
-      ],
-    );
-  }
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-
-      body: KFDrawer(
-//        borderRadius: 0.0,
-//        shadowBorderRadius: 0.0,
-//        menuPadding: EdgeInsets.all(0.0),
-//        scrollable: true,
-        controller: _drawerController,
-        header: Align(
-          alignment: Alignment.centerLeft,
-          child: Container(
-            padding: EdgeInsets.symmetric(horizontal: 16.0),
-            width: MediaQuery.of(context).size.width * 0.5,
-            child: Image.asset(
-              'assets/nafha.png',
-              alignment: Alignment.centerLeft,
-            ),
-          ),
-        ),
-        footer: KFDrawerItem(
-          text: Text(
-            'عن المطور ',
-            style: TextStyle(color: Colors.white,fontSize:10.0,fontFamily: 'Sans'),
-          ),
-          icon: Icon(
-            Icons.code,
-            color: Colors.white,
-          ),
-          onPressed: () {
-            /*Navigator.of(context).push(CupertinoPageRoute(
-              fullscreenDialog: true,
-              builder: (BuildContext context) {
-                return AuthPage();
-              },
-            ));*/
-          },
-        ),
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topRight,
-            end: Alignment.bottomRight,
-            colors: [Color.fromRGBO(31, 122, 31, .8), Color.fromRGBO(51, 204, 51, .8)],
-            tileMode: TileMode.repeated,
-          ),
-        ),
-      ),
-    );
-  }
-}
 
 class LoginScreen extends StatefulWidget {
   @override
@@ -240,7 +133,7 @@ var ident;
         var formData ={"email": _email, "password": _password};
         var response =
         await http.post(
-            "http://semicolon-sd.com/covid19/loginmeat", body: formData);
+            "http://www.baladisa.com/covid19/loginmeat", body: formData);
         print("File upload response: $response");
       var jsonData = json.decode(response.body);
         for (var u in jsonData) {
@@ -266,12 +159,9 @@ var ident;
           localStorage.setString('address', admindata[0].address);
           localStorage.setString('phone', admindata[0].phone);
           localStorage.setString('role', admindata[0].role.toString());
-            SchedulerBinding.instance.addPostFrameCallback((_) {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => MainPageScreen()),
-              );
-            });
+
+              Navigator.of(context).pushNamedAndRemoveUntil('/MainPage', (route) => false);
+
         }else{
           return AlertDialog(
             title: new Text("عفوا :بياناتك غير صحيحة",

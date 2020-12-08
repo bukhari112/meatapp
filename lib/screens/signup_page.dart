@@ -128,7 +128,7 @@ class _SignupScreenState extends State<SignupScreen> {
         });
         Response response =
         await Dio().post(
-            "http://semicolon-sd.com/covid19/addadminsmeat", data: formData);
+            "http://www.baladisa.com/covid19/addadminsmeat", data: formData);
         print("File upload response: $response");
         // If Web call Success than Hide the CircularProgressIndicator.
         if (response.statusCode == 200) {

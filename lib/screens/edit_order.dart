@@ -91,7 +91,7 @@ class _EditOrdersPageState extends State<EditOrdersPage> {
         "total": _total,
       });
       Response response = await Dio()
-          .post("http://semicolon-sd.com/covid19/editcart/${widget.list[widget.index].id}", data: formData);
+          .post("http://www.baladisa.com/covid19/editcart/${widget.list[widget.index].id}", data: formData);
       print("File upload response: $response");
       // If Web call Success than Hide the CircularProgressIndicator.
 /*        if (response.statusCode == 200) {

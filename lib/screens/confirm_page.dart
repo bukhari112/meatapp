@@ -39,7 +39,7 @@ class _ConfirmPageScreenState extends State<ConfirmPageScreen> {
       // new FormData.fromMap({"name": "bukhari" });
       new FormData.fromMap({"code":_code});
       Response response =
-      await Dio().post("http://semicolon-sd.com/covid19/confirm", data: formData);
+      await Dio().post("http://www.baladisa.com/covid19/confirm", data: formData);
       print("File upload response: $response");
       // If Web call Success than Hide the CircularProgressIndicator.
       if(response.statusCode == 200){

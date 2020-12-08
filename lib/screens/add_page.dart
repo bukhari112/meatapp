@@ -64,7 +64,7 @@ class _AddPageScreenState extends State<AddPageScreen> {
         new FormData.fromMap({"cash": _cash, "killo": _killo});
         Response response =
         await Dio().post(
-            "http://semicolon-sd.com/covid19/addcashmeat", data: formData);
+            "http://www.baladisa.com/covid19/addcashmeat", data: formData);
         print("File upload response: $response");
         // If Web call Success than Hide the CircularProgressIndicator.
 /*        if (response.statusCode == 200) {

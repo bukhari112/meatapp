@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 import 'package:flutter/scheduler.dart';
@@ -8,21 +9,22 @@ import 'package:meatappapp/screens/confirm_page.dart';
 import 'package:meatappapp/screens/control_page.dart';
 import 'package:meatappapp/screens/islamic.dart';
 import 'package:meatappapp/screens/mycart.dart';
+import 'package:meatappapp/screens/orders.dart';
 import 'package:meatappapp/utils/constants.dart';
 import 'package:curved_navigation_bar/curved_navigation_bar.dart';
 import 'package:dio/dio.dart';
-import 'package:flutter/material.dart';
+import 'package:flutter/material.dart' hide action;
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:superellipse_shape/superellipse_shape.dart';
 import 'package:numberpicker/numberpicker.dart';
+import 'package:workmanager/workmanager.dart' ;
 import 'api.dart';
 import 'package:http/http.dart' as http;
-
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'edit_user.dart';
-import 'orders.dart';
 
 List<Cashkillo> cashlistdata = [];
 
@@ -33,9 +35,16 @@ class MainPageScreen extends StatefulWidget {
 
 class _MainPageScreenState extends State<MainPageScreen> {
   GlobalKey _bottomNavigationKey = GlobalKey();
+  Timer timer;
+  FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
+  new FlutterLocalNotificationsPlugin();
+  var initializationSettingsAndroid;
+  var initializationSettingsIOS;
+  var initializationSettings;
+
 
   Future<List<Cashkillo>> _getCashkillo() async {
-    var data = await http.get("https://semicolon-sd.com/covid19/datacash");
+    var data = await http.get("https://www.baladisa.com/covid19/datacash");
     var jsonData = json.decode(data.body);
     for (var u in jsonData) {
       Cashkillo cash = Cashkillo(u["id"], u["cash"], u["killo"]);
@@ -51,7 +60,7 @@ class _MainPageScreenState extends State<MainPageScreen> {
   String _password;
   String _id;
   String _role;
-
+  String _rolenotification;
   _getuserdata() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     _username  = prefs.getString('realname');
@@ -63,15 +72,102 @@ class _MainPageScreenState extends State<MainPageScreen> {
     _id = prefs.getString('id');
 
   }
+
+  _getnotifucation() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    _role = prefs.getString('role');
+    if (_rolenotification == "2" || _rolenotification == "3") {
+      Cashdata.getCashdata().then((response) {
+        setState(() {
+
+        });
+      });
+    }
+  }
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
+    initializationSettingsAndroid =
+    new AndroidInitializationSettings('app_icon');
+    initializationSettingsIOS = new IOSInitializationSettings(
+        onDidReceiveLocalNotification: onDidReceiveLocalNotification);
+    initializationSettings = new InitializationSettings(
+        initializationSettingsAndroid, initializationSettingsIOS);
+    flutterLocalNotificationsPlugin.initialize(initializationSettings,
+        onSelectNotification: onSelectNotification);
     _getCashkillo();
     _getuserdata();
     _loadusername();
+    timer = Timer.periodic(Duration(seconds:900), (Timer t) => _demoNotification());
   }
 
+
+  Future<void> _demoNotification() async {
+    /* check users and orders */
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    _rolenotification = prefs.getString('role');
+    print(_rolenotification);
+    if (_rolenotification == "2" || _rolenotification == "3") {
+      FormData formData =
+      new FormData.fromMap({"role": "role"});
+      Response response =
+      await Dio().post(
+          "http://www.baladisa.com/covid19/noto", data: formData);
+      /* end check users and orders */
+      if (response.toString() == "yes") {
+        var androidPlatformChannelSpecifics = AndroidNotificationDetails(
+            'channel_ID', 'channel name', 'channel description',
+            importance: Importance.Max,
+            ticker: 'test ticker');
+
+        var iOSChannelSpecifics = IOSNotificationDetails();
+        var platformChannelSpecifics = NotificationDetails(
+            androidPlatformChannelSpecifics, iOSChannelSpecifics);
+
+        await flutterLocalNotificationsPlugin.show(0, 'تنبيه !!',
+            'هنالك طلبات في انتظارك يرجى التحقق منها ',
+            platformChannelSpecifics,
+            payload: 'test oayload');
+      }
+    }
+  }
+  void callbackDispatcher() {
+    Workmanager.executeTask((task, inputData) async {
+      print("hi bukhari this functions is work Good!!!");
+      return Future.value(true);
+    });
+
+  }
+
+  Future onSelectNotification(String payload) async {
+    if (payload != null) {
+      debugPrint('Notification payload: $payload');
+    }
+    await Navigator.push(context,
+        new MaterialPageRoute(builder: (context) => new MainPageScreen()));
+  }
+
+  Future onDidReceiveLocalNotification(
+      int id, String title, String body, String payload) async {
+    await showDialog(
+        context: context,
+        builder: (BuildContext context) => CupertinoAlertDialog(
+          title: Text(title),
+          content: Text(body),
+          actions: <Widget>[
+            CupertinoDialogAction(
+              isDefaultAction: true,
+              child: Text('Ok'),
+              onPressed: () async {
+                Navigator.of(context, rootNavigator: true).pop();
+                await Navigator.push(context,
+                    MaterialPageRoute(builder: (context) => MainPageScreen()));
+              },
+            )
+          ],
+        ));
+  }
   _loadusername() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     setState(() {
@@ -95,15 +191,23 @@ class _MainPageScreenState extends State<MainPageScreen> {
         break;
       case 3:
         return
-          roletest != "3" ?
+          roletest == "3" ?
           ControlPage():
-          roletest != "2" ?
+          roletest == "2" ?
           OrderPageScreen():
-          WhousPage();
+          roletest == "1"?
+          WhousPage():
+              WhousPage();
         break;
       default:
         return HomePagePage(cashlistdata);
     }
+  }
+
+
+  clearsessions() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+   await  prefs.clear();
   }
 exitfun(){
   // Showing Alert Dialog with Response JSON Message.
@@ -122,6 +226,7 @@ exitfun(){
                     color: Colors.red[500],
                     fontWeight: FontWeight.bold)),
             onPressed: () {
+              clearsessions();
               SystemNavigator.pop();
             },
           ),
@@ -131,6 +236,7 @@ exitfun(){
                     color: Colors.red[500],
                     fontWeight: FontWeight.bold)),
             onPressed: () {
+              timer?.cancel();
               Navigator.pop(context);
             },
           ),
@@ -198,11 +304,12 @@ Icon(
   Icons.motorcycle,
   size: 30,
   color: Colors.white,
-):Icon(
+):roletest == "1"?
+Icon(
   Icons.info,
   size: 30,
   color: Colors.white,
-),
+):Container(),
         ],
         color: Colors.red[900],
         buttonBackgroundColor: Colors.red[900],
@@ -316,7 +423,7 @@ class _OrdersPageState extends State<OrdersPage> {
         "phone": _phone,
       });
       Response response = await Dio()
-          .post("http://semicolon-sd.com/covid19/addtocart", data: formData);
+          .post("http://www.baladisa.com/covid19/addtocart", data: formData);
       print("File upload response: $response");
       // If Web call Success than Hide the CircularProgressIndicator.
 /*        if (response.statusCode == 200) {
@@ -1165,7 +1272,7 @@ class _ProfilePageState extends State<ProfilePage> {
                   margin: EdgeInsets.all(5),
                   decoration: BoxDecoration(boxShadow: [
                     BoxShadow(
-                        color: Colors.grey.withOpacity(0.1),
+                        color: Colors.grey.withOpacity(0.01),
                         spreadRadius: 5,
                         blurRadius:2,
                         offset: Offset(0, 3))
@@ -1214,7 +1321,7 @@ class _ProfilePageState extends State<ProfilePage> {
                   margin: EdgeInsets.all(5),
                   decoration: BoxDecoration(boxShadow: [
                     BoxShadow(
-                        color: Colors.grey.withOpacity(0.1),
+                        color: Colors.grey.withOpacity(0.01),
                         spreadRadius: 5,
                         blurRadius: 2,
                         offset: Offset(0, 3))
@@ -1265,7 +1372,7 @@ class _ProfilePageState extends State<ProfilePage> {
                   margin: EdgeInsets.all(5),
                   decoration: BoxDecoration(boxShadow: [
                     BoxShadow(
-                        color: Colors.grey.withOpacity(0.1),
+                        color: Colors.grey.withOpacity(0.01),
                         spreadRadius: 5,
                         blurRadius: 2,
                         offset: Offset(0, 3))
@@ -1316,7 +1423,7 @@ class _ProfilePageState extends State<ProfilePage> {
                   margin: EdgeInsets.all(5),
                   decoration: BoxDecoration(boxShadow: [
                     BoxShadow(
-                        color: Colors.grey.withOpacity(0.1),
+                        color: Colors.grey.withOpacity(0.01),
                         spreadRadius: 5,
                         blurRadius:2,
                         offset: Offset(0, 3))
@@ -1433,7 +1540,7 @@ class _WhousPageState extends State<WhousPage> {
                   margin: EdgeInsets.all(5),
                   decoration: BoxDecoration(boxShadow: [
                     BoxShadow(
-                        color: Colors.grey.withOpacity(0.1),
+                        color: Colors.grey.withOpacity(0.01),
                         spreadRadius: 5,
                         blurRadius:2,
                         offset: Offset(0, 3))
@@ -1474,7 +1581,7 @@ class _WhousPageState extends State<WhousPage> {
                   margin: EdgeInsets.all(5),
                   decoration: BoxDecoration(boxShadow: [
                     BoxShadow(
-                        color: Colors.grey.withOpacity(0.1),
+                        color: Colors.grey.withOpacity(0.01),
                         spreadRadius: 5,
                         blurRadius: 2,
                         offset: Offset(0, 3))

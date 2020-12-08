@@ -82,7 +82,7 @@ String address = _addressController.text;
         "userid": _userid
       });
       Response response = await Dio().post(
-          "http://semicolon-sd.com/covid19/confirmtotal",
+          "http://www.baladisa.com/covid19/confirmtotal",
           data: formData);
       print("File upload response: $response");
       // If Web call Success than Hide the CircularProgressIndicator.

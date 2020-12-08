@@ -176,10 +176,9 @@ color: Colors.white,
         );
       });
     },
-
                         color: Colors.white,
                         shape: SuperellipseShape(
-                          borderRadgit initius: BorderRadius.circular(28.0),
+                          borderRadius: BorderRadius.circular(28.0),
                         ), // SuperellipseShape
                         child:
                         Column( children: <Widget>[
